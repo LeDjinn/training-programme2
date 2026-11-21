@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<title>Padel · Training Tracker</title>
+<style>
+:root{--bg:#0b0d10;--card:#15191f;--card2:#1b2027;--text:#f4f6f8;--muted:#9ba6b2;--line:#29313a;--accent:#d7ff46;--ok:#63e6be}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(11,13,16,.94);backdrop-filter:blur(12px);padding:18px 16px 12px;border-bottom:1px solid var(--line)}
+h1{font-size:21px;margin:0 0 5px} .small{color:var(--muted);font-size:13px}
+main{max-width:760px;margin:auto;padding:14px 14px 90px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:8px 0 2px;scrollbar-width:none}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--text);padding:9px 12px;border-radius:999px;white-space:nowrap;font-weight:700}
+.tab.active{background:var(--accent);color:#10130a;border-color:var(--accent)}
+.dayhead{margin:18px 2px 12px} .dayhead h2{font-size:23px;margin:0 0 5px}
+.progress{height:8px;background:#222831;border-radius:10px;overflow:hidden;margin-top:12px} .bar{height:100%;background:var(--accent);width:0;transition:.25s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;margin:11px 0;overflow:hidden}
+.top{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:start;padding:14px}
+.check{width:25px;height:25px;accent-color:var(--accent);margin-top:2px}
+.name{font-weight:800;font-size:16px;line-height:1.2} .dose{font-size:13px;color:var(--accent);font-weight:800;margin-top:5px}
+.desc{font-size:13px;color:var(--muted);line-height:1.45;margin-top:7px}
+.toggle{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:7px 9px;font-size:12px}
+.video{display:none;border-top:1px solid var(--line);background:#000} .video.open{display:block}
+iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+.done .name{text-decoration:line-through;color:#89939e} .done{opacity:.72}
+.actions{display:flex;gap:9px;margin-top:16px} button.action{flex:1;border:1px solid var(--line);background:var(--card2);color:var(--text);padding:11px;border-radius:12px;font-weight:700}
+.note{margin:18px 2px;padding:12px 14px;border:1px solid #3a4322;background:#171b10;border-radius:14px;font-size:12px;color:#cdd5b0;line-height:1.45}
+.empty{padding:30px 18px;text-align:center;color:var(--muted);background:var(--card);border-radius:18px;border:1px solid var(--line)}
+.counter{font-size:13px;color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎾 Padel · Training Tracker</h1>
+  <div class="small">Tes cases restent cochées sur ce téléphone.</div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main id="app"></main>
+<script>
+const days={"lundi": {"title": "Lundi · Padel light + genoux", "subtitle": "Padel limité / plutôt statique + routine Kneehab", "exercises": [["Wall Sit", "3 × 45 sec", "Dos au mur, cuisses confortablement fléchies, tenir sans rebond.", "https://www.youtube.com/embed/y-wV4Venusw"], ["Bent-Knee Calf Raise Hold", "3 × 30 sec", "Monter sur la pointe des pieds avec les genoux fléchis et tenir en haut.", "https://www.youtube.com/embed/3UWi44yN-wM"], ["Tibialis Raises", "3 × 20", "Talons au sol, relever les pointes de pieds vers les tibias.", "https://www.youtube.com/embed/gNS_QjGAs_k"]]}, "mardi": {"title": "Mardi · Padel + prépa + quads", "subtitle": "Padel 1h30 + préparation physique 40 min + Kneehab", "exercises": [["Banded TKE", "3 × 20 / côté", "Bande derrière le genou : partir légèrement fléchi puis tendre complètement le genou.", "https://www.youtube.com/embed/ZscBVtoX62U"], ["Slant Board Step Down", "3 × 8 / côté", "Descendre très lentement sur une jambe : 3–5 secondes à la descente.", "https://www.youtube.com/embed/zhCGPoCbM4s"], ["Wall-Assisted Sissy Squat", "2 × 10", "Tenir un support, genoux avancent pendant que le corps reste gainé.", "https://www.youtube.com/embed/VUiFlZ2FsKA"], ["Reverse Nordic", "2 × 8", "À genoux, corps droit, s'incliner vers l'arrière depuis les genoux puis revenir.", "https://www.youtube.com/embed/0xRxYQfWOnY"]]}, "mercredi": {"title": "Mercredi · Athletic A", "subtitle": "Force, stabilité, rotation + Kneehab chaîne postérieure", "exercises": [["Medicine-Ball Rotational Throw", "4 × 5 / côté", "De profil au mur : charger la hanche arrière, pivoter et lancer explosivement.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=700"], ["Tractions", "4 × 5–8", "Corps gainé, tirer la poitrine vers la barre puis redescendre contrôlé.", "https://www.youtube.com/embed/eGo4IYlbE5g"], ["Landmine Press en fente", "3 × 8 / côté", "Position fente, pousser la barre en diagonale avec un bras sans perdre le bassin.", "https://www.youtube.com/embed/_ArzG9qz-yM"], ["Single-Leg RDL + Knee Drive", "3 × 8 / côté", "Charnière sur une jambe, jambe libre derrière, puis remontée et genou devant.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=985"], ["Lateral Step-Up + Knee Drive", "3 × 8 / côté", "Monter latéralement sur le step puis lever le genou opposé et stabiliser.", "https://www.youtube.com/embed/iaalNajHoaY"], ["Cable Row en Split Stance + rotation", "3 × 10 / côté", "Jambes décalées, tirer d'un bras en laissant le thorax accompagner légèrement.", "https://www.youtube.com/embed/-zBPknRjGU"], ["Suitcase Carry", "3 × 30–40 m / côté", "Une charge dans une main ; marcher grand et droit sans pencher vers la charge.", "https://www.youtube.com/embed/rt17lmnaLSM"], ["Pallof Press + déplacement latéral", "3 × 8 / côté", "Résister à la rotation tout en effectuant de petits pas latéraux.", "https://www.youtube.com/embed/LFFG4QF5e0U"], ["Single-Leg Banded RDL · Kneehab", "3 × 10 / côté", "Même charnière unilatérale, ici avec bande et tempo contrôlé.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=968"], ["Banded Hamstring Curl · Kneehab", "3 × 10 / côté", "Bande ancrée, ramener le talon vers la fesse sans bouger la cuisse.", "https://www.youtube.com/embed/0N1DjWD10-o"], ["Glute Bridge Walkouts · Kneehab", "2 × 8", "Depuis un pont fessier, avancer les talons petit à petit puis revenir.", "https://www.youtube.com/embed/5tK8h5p8K8Q"]]}, "jeudi": {"title": "Jeudi · Padel + prépa + hanches", "subtitle": "Padel 1h30 + préparation physique 40 min + Kneehab", "exercises": [["Banded Lateral Walks", "2 × 10 / côté", "Bande autour des jambes, petits pas latéraux en gardant bassin et genoux stables.", "https://www.youtube.com/embed/YZuRt_WDi9o"], ["Adductor Isometrics", "3 × 30 sec / côté", "Contraction statique des adducteurs sans mouvement du bassin.", "https://www.youtube.com/embed/5cTh21BfXzI"], ["Banded Hip Flexor Raises", "2 × 12 / côté", "Bande aux pieds : monter un genou contre la résistance sans basculer le tronc.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=111"]]}, "vendredi": {"title": "Vendredi · Athletic B", "subtitle": "Puissance full-body + Kneehab amplitude complète", "exercises": [["Medicine-Ball Slam", "3 × 6", "Ballon au-dessus de la tête puis projection explosive au sol.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=741"], ["Push Press", "4 × 5", "Petite flexion, extension explosive des jambes puis pousser la barre au-dessus de la tête.", "https://www.youtube.com/embed/yCvb3ZBPM9s"], ["Goblet Squat · remontée explosive", "3 × 6–8", "Charge devant la poitrine, descente contrôlée puis remontée rapide — sans saut.", "https://www.youtube.com/embed/MeIiIdhvXT4"], ["Walking Lunge + Rotation", "3 × 8 / côté", "Fente marchée, stabiliser puis rotation contrôlée du med-ball vers la jambe avant.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=136"], ["TRX Row", "3 × 10–12", "Corps en planche inclinée, tirer la poitrine vers les poignées.", "https://www.youtube.com/embed/N_14s8zFOms"], ["Landmine Rotation", "3 × 8 / côté", "Déplacer la barre d'un côté à l'autre en faisant participer hanches et tronc.", "https://www.youtube.com/embed/uSq3-Z0pfY8"], ["Sled Push", "5 × 15–20 m", "Tronc incliné, gainé ; pousser avec des pas puissants et continus.", "https://www.youtube.com/embed/QwscR2BhdEg"], ["Copenhagen Plank", "3 × 20–30 sec / côté", "Jambe supérieure sur banc, bassin haut, corps aligné.", "https://www.youtube.com/embed/5cTh21BfXzI"], ["Spanish Squat Hold · Kneehab", "3 × 30 sec", "Bande derrière les genoux, s'asseoir en arrière et tenir la position.", "https://www.youtube.com/embed/ZscBVtoX62U"], ["Split Squat Isometric · Kneehab", "2 × 30 sec / côté", "Tenir une position de fente stable à amplitude tolérée.", "https://www.youtube.com/embed/ykW68LKG1VI"], ["Front-Foot-Elevated ATG Split Squat · Kneehab", "2 × 8 / côté", "Pied avant surélevé, avancer progressivement le genou en gardant le talon posé.", "https://www.youtube.com/embed/ykW68LKG1VI"]]}, "samedi": {"title": "Samedi · Mouvement ludique", "subtitle": "Coordination, mobilité, gainage dynamique · léger", "exercises": [["Bear Crawl", "3 × 15–20 m", "À quatre pattes, genoux décollés ; avancer main et jambe opposées.", "https://www.youtube.com/embed/W-3rIQH-4nY"], ["Crab Walk", "3 × 15 m", "Mains et pieds au sol, bassin décollé ; avancer de façon contrôlée.", "https://www.youtube.com/embed/I-3r4cl4ahA"], ["Suitcase Carry en zigzag", "3 × 30 m / côté", "Une charge d'un côté, marcher entre des cônes sans incliner le tronc.", "https://www.youtube.com/embed/rt17lmnaLSM"], ["Med-Ball Catch + Rotation", "3 × 8 / côté", "Réceptionner, absorber, stabiliser puis renvoyer en rotation avec un partenaire.", "https://www.youtube.com/embed/r3XvUMIiXDQ?start=627"], ["Dead Bug avec med-ball", "3 × 8 / côté", "Dos au sol, bassin stable ; éloigner bras/jambe opposés sans cambrer.", "https://www.youtube.com/embed/4XLEnwUr1d8"], ["Mobilité hanches + chevilles + thorax", "10 min", "Flow tranquille : chevilles, ouverture de hanches et rotations thoraciques.", "https://www.youtube.com/embed/FSSDLDhbacc"]]}, "dimanche": {"title": "Dimanche · Libre", "subtitle": "Repos / récupération selon ton état", "exercises": []}};
+const order=["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+const labels={lundi:"Lun",mardi:"Mar",mercredi:"Mer",jeudi:"Jeu",vendredi:"Ven",samedi:"Sam",dimanche:"Dim"};
+let current=localStorage.getItem("pt-day")||"lundi";
+function key(day,i){return `pt-${day}-${i}`}
+function renderTabs(){
+ const el=document.getElementById("tabs"); el.innerHTML="";
+ order.forEach(d=>{const b=document.createElement("button");b.className="tab"+(d===current?" active":"");b.textContent=labels[d];b.onclick=()=>{current=d;localStorage.setItem("pt-day",d);render()};el.appendChild(b)})
+}
+function render(){
+ renderTabs(); const d=days[current], app=document.getElementById("app");
+ const total=d.exercises.length; let done=d.exercises.filter((_,i)=>localStorage.getItem(key(current,i))==="1").length;
+ let cards=d.exercises.map((e,i)=>{
+   const checked=localStorage.getItem(key(current,i))==="1";
+   return `<section class="card ${checked?"done":""}" id="c${i}">
+    <div class="top">
+      <input aria-label="Terminé" class="check" type="checkbox" ${checked?"checked":""} onchange="setDone(${i},this.checked)">
+      <div><div class="name">${e[0]}</div><div class="dose">${e[1]}</div><div class="desc">${e[2]}</div></div>
+      <button class="toggle" onclick="toggleVideo(${i})">▶ Vidéo</button>
+    </div>
+    <div class="video" id="v${i}"><iframe loading="lazy" src="${e[3]}" title="${e[0]}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+   </section>`}).join("");
+ app.innerHTML=`<div class="dayhead"><h2>${d.title}</h2><div class="small">${d.subtitle}</div>
+ <div class="progress"><div class="bar" style="width:${total?done/total*100:0}%"></div></div>
+ <div class="counter" style="margin-top:7px">${done} / ${total} exercices terminés</div></div>
+ ${cards || '<div class="empty">Rien de programmé aujourd’hui. 👌</div>'}
+ <div class="actions"><button class="action" onclick="resetDay()">Réinitialiser le jour</button><button class="action" onclick="resetWeek()">Nouvelle semaine</button></div>
+ <div class="note"><b>Règle genou du document Kneehab :</b> douleur pendant l’exercice ≤ 3/10 et retour au niveau habituel le lendemain matin. Si ce n’est pas le cas, réduire tension de bande ou amplitude.</div>`;
+}
+function setDone(i,v){localStorage.setItem(key(current,i),v?"1":"0");render()}
+function toggleVideo(i){document.getElementById("v"+i).classList.toggle("open")}
+function resetDay(){days[current].exercises.forEach((_,i)=>localStorage.removeItem(key(current,i)));render()}
+function resetWeek(){if(confirm("Réinitialiser toutes les cases de la semaine ?")){order.forEach(d=>days[d].exercises.forEach((_,i)=>localStorage.removeItem(key(d,i))));render()}}
+render();
+</script>
+</body></html>
